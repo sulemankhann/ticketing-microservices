@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import RequestValidationError from "../errors/request-validation-error";
 import DatabaseConnectionError from "../errors/database-connection-error";
-import { signin, signup } from "../handlers";
+import { currentuser, signin, signup } from "../handlers";
 import validateRequest from "../middleware/validate-request";
 
 const router: Router = express.Router();
@@ -34,8 +34,6 @@ router.post("/signout", (req, res) => {
   res.send("Hi there!");
 });
 
-router.get("/currentuser", (req, res) => {
-  res.send("Hi there!");
-});
+router.get("/currentuser", currentuser);
 
 export default router;

@@ -70,3 +70,16 @@ export const signin = async (req: Request, res: Response) => {
 
   res.status(200).send(existingUser);
 };
+
+export const currentuser = async (req: Request, res: Response) => {
+  if (!req.session?.jwt) {
+    return res.send({ currentUser: null });
+  }
+
+  try {
+    const payload = jwt.verify(req.session.jwt, process.env.JWT_KEY!);
+    res.send({ currentUser: payload });
+  } catch (err) {
+    return res.send({ currentUser: null });
+  }
+};
