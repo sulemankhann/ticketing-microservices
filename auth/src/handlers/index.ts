@@ -83,3 +83,9 @@ export const currentuser = async (req: Request, res: Response) => {
     return res.send({ currentUser: null });
   }
 };
+
+export const signout = async (req: Request, res: Response) => {
+  req.session = null;
+
+  res.send({});
+};
