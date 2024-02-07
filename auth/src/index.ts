@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import cookieSession from "cookie-session";
 
 import routes from "./routes";
-import errorHandler from "./middleware/errorHandler";
+import errorHandler from "./middleware/error-handler";
 import NotFoundError from "./errors/not-found-error";
 
 const app = express();
