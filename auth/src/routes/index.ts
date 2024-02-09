@@ -23,7 +23,7 @@ router.post(
 );
 
 router.post(
-  "/sigin",
+  "/signin",
   [
     body("email").isEmail().withMessage("Email must be valid"),
     body("password").trim().notEmpty().withMessage("Password is required"),
