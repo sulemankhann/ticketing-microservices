@@ -1,11 +1,13 @@
 import express, { Router, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
-import RequestValidationError from "../errors/request-validation-error";
-import DatabaseConnectionError from "../errors/database-connection-error";
+import {
+  RequestValidationError,
+  DatabaseConnectionError,
+  validateRequest,
+  currentUser as currentUserMiddleware,
+  authenticate,
+} from "@devorium/common";
 import { currentUser, signin, signout, signup } from "../handlers";
-import validateRequest from "../middleware/validate-request";
-import currentUserMiddleware from "../middleware/current-user";
-import authenticate from "../middleware/authenticate";
 
 const router: Router = express.Router();
 

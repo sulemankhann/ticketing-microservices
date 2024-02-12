@@ -3,8 +3,8 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 import User from "../models/user";
-import RequestValidationError from "../errors/request-validation-error";
-import BadRequestError from "../errors/bad-request-error";
+
+import { RequestValidationError, BadRequestError } from "@devorium/common";
 import { Password } from "../utils/password";
 
 export const signup = async (req: Request, res: Response) => {
