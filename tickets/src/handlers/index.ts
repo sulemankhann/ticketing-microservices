@@ -21,3 +21,9 @@ export const getTicket = async (req: Request, res: Response) => {
 
   res.status(200).send(ticket);
 };
+
+export const getTickets = async (req: Request, res: Response) => {
+  const tickets = await Ticket.find({});
+
+  res.status(200).send(tickets);
+};

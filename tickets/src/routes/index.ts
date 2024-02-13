@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from "express";
 import { body } from "express-validator";
 import { authenticate, currentUser, validateRequest } from "@devorium/common";
 
-import { createTicket, getTicket } from "../handlers";
+import { createTicket, getTicket, getTickets } from "../handlers";
 
 const router = express.Router();
 
@@ -19,6 +19,7 @@ router.post(
   createTicket,
 );
 
+router.get("/", getTickets);
 router.get("/:id", getTicket);
 
 export default router;
