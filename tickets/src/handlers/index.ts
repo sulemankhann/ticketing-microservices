@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import Ticket from "../models/ticket";
-import { NotFoundError } from "@devorium/common";
+import { NotAuthorizedError, NotFoundError } from "@devorium/common";
 
 export const createTicket = async (req: Request, res: Response) => {
   const { title, price } = req.body;
@@ -26,4 +26,26 @@ export const getTickets = async (req: Request, res: Response) => {
   const tickets = await Ticket.find({});
 
   res.status(200).send(tickets);
+};
+
+export const upateTickets = async (req: Request, res: Response) => {
+  const ticket = await Ticket.findById(req.params.id);
+  const { title, price } = req.body;
+
+  if (!ticket) {
+    throw new NotFoundError();
+  }
+
+  if (ticket.userId !== req.currentUser!.id) {
+    throw new NotAuthorizedError();
+  }
+
+  ticket.set({
+    title,
+    price,
+  });
+
+  await ticket.save();
+
+  res.send(ticket);
 };
