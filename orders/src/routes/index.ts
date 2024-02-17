@@ -1,5 +1,5 @@
 import express, { Router, Request, Response } from "express";
-import { createOrders, deleteOrder, getOrder, getOrders } from "../handlers";
+import { createOrders, cancelOrder, getOrder, getOrders } from "../handlers";
 import { authenticate, validateRequest } from "@devorium/common";
 import { body } from "express-validator";
 import mongoose from "mongoose";
@@ -21,6 +21,6 @@ router.post(
 );
 router.get("/", authenticate, getOrders);
 router.get("/:id", authenticate, getOrder);
-router.delete("/:id", deleteOrder);
+router.patch("/:id", authenticate, cancelOrder);
 
 export default router;

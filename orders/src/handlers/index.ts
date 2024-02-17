@@ -66,6 +66,22 @@ export const getOrder = async (req: Request, res: Response) => {
   res.send(order);
 };
 
-export const deleteOrder = async (req: Request, res: Response) => {
-  res.send({});
+export const cancelOrder = async (req: Request, res: Response) => {
+  const order = await Order.findById(req.params.id).populate("ticket");
+
+  if (!order) {
+    throw new NotFoundError();
+  }
+
+  if (order.userId !== req.currentUser!.id) {
+    throw new NotAuthorizedError();
+  }
+
+  order.status = OrderStatus.Cancelled;
+
+  await order.save();
+
+  // TODO: publish an OrderCancel Event
+
+  res.send(order);
 };
