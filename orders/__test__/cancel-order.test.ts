@@ -4,6 +4,7 @@ import Ticket from "../src/models/ticket";
 import mongoose from "mongoose";
 import { OrderStatus } from "@devorium/common";
 import Order from "../src/models/order";
+import { natsWrapper } from "../src/nats-wrapper";
 
 it("returns 404 if order does not exist", async () => {
   const user = global.createCookie();
@@ -66,4 +67,26 @@ it("cancel the order", async () => {
   expect(updatedOrder?.id).toEqual(order.id);
 });
 
-it.todo("emits a order cancelled event");
+it("emits a order cancelled event", async () => {
+  const ticket = Ticket.build({
+    title: "Concert",
+    price: 20,
+  });
+  await ticket.save();
+
+  const user = global.createCookie();
+
+  const { body: order } = await request(app)
+    .post("/api/orders")
+    .set("Cookie", user)
+    .send({ ticketId: ticket.id })
+    .expect(201);
+
+  const { body: cancelOrder } = await request(app)
+    .patch(`/api/orders/${order.id}`)
+    .set("Cookie", user)
+    .send({})
+    .expect(200);
+
+  expect(natsWrapper.client.publish).toHaveBeenCalled();
+});

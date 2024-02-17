@@ -7,6 +7,9 @@ import {
   OrderStatus,
 } from "@devorium/common";
 import Order from "../models/order";
+import { natsWrapper } from "../nats-wrapper";
+import OrderCreatedPublisher from "../events/publisher/order-created-publisher";
+import OrderCancelledPublisher from "../events/publisher/order-cancelled-publisher";
 
 const EXPIRATION_WINDOW_SECONDS = 15 * 60;
 
@@ -39,7 +42,16 @@ export const createOrders = async (req: Request, res: Response) => {
   });
   await order.save();
 
-  //TODO: publish an event, the order is created
+  new OrderCreatedPublisher(natsWrapper.client).publish({
+    id: order.id,
+    status: order.status,
+    userId: order.userId,
+    expiresAt: order.expiresAt.toISOString(),
+    ticket: {
+      id: order.ticket.id,
+      price: order.ticket.price,
+    },
+  });
 
   res.status(201).send(order);
 };
@@ -81,7 +93,12 @@ export const cancelOrder = async (req: Request, res: Response) => {
 
   await order.save();
 
-  // TODO: publish an OrderCancel Event
+  new OrderCancelledPublisher(natsWrapper.client).publish({
+    id: order.id,
+    ticket: {
+      id: order.ticket.id,
+    },
+  });
 
   res.send(order);
 };

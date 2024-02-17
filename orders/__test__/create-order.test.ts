@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import app from "../src/app";
 import Ticket from "../src/models/ticket";
 import Order, { OrderStatus } from "../src/models/order";
+import { natsWrapper } from "../src/nats-wrapper";
 
 it("has a route handler listning to /api/orders for post request", async () => {
   const response = await request(app).post("/api/orders").send({});
@@ -85,4 +86,18 @@ it("reserve a ticket", async () => {
     .expect(201);
 });
 
-it.todo("emits an order created event");
+it("emits an order created event", async () => {
+  const ticket = Ticket.build({
+    title: "Concert",
+    price: 20,
+  });
+  await ticket.save();
+
+  await request(app)
+    .post("/api/orders")
+    .set("Cookie", global.createCookie())
+    .send({ ticketId: ticket.id })
+    .expect(201);
+
+  expect(natsWrapper.client.publish).toHaveBeenCalled();
+});
