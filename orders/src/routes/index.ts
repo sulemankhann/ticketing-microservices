@@ -19,8 +19,8 @@ router.post(
   validateRequest,
   createOrders,
 );
-router.get("/", getOrders);
-router.get("/:id", getOrder);
+router.get("/", authenticate, getOrders);
+router.get("/:id", authenticate, getOrder);
 router.delete("/:id", deleteOrder);
 
 export default router;

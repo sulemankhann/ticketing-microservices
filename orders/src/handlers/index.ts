@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import Ticket from "../models/ticket";
-import { BadRequestError, NotFoundError, OrderStatus } from "@devorium/common";
+import {
+  BadRequestError,
+  NotAuthorizedError,
+  NotFoundError,
+  OrderStatus,
+} from "@devorium/common";
 import Order from "../models/order";
 
 const EXPIRATION_WINDOW_SECONDS = 15 * 60;
@@ -40,11 +45,25 @@ export const createOrders = async (req: Request, res: Response) => {
 };
 
 export const getOrders = async (req: Request, res: Response) => {
-  res.send({});
+  const orders = await Order.find({ userId: req.currentUser!.id }).populate(
+    "ticket",
+  );
+
+  res.send(orders);
 };
 
 export const getOrder = async (req: Request, res: Response) => {
-  res.send({});
+  const order = await Order.findById(req.params.id).populate("ticket");
+
+  if (!order) {
+    throw new NotFoundError();
+  }
+
+  if (order.userId !== req.currentUser!.id) {
+    throw new NotAuthorizedError();
+  }
+
+  res.send(order);
 };
 
 export const deleteOrder = async (req: Request, res: Response) => {
