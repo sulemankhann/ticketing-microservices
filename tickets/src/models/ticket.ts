@@ -1,5 +1,6 @@
 import { Schema, model, Model, Document } from "mongoose";
 import { moveSyntheticComments } from "typescript";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 interface TicketAttrs {
   title: string;
@@ -11,6 +12,7 @@ interface TicketDoc extends Document {
   title: string;
   price: number;
   userId: string;
+  version: number;
 }
 
 interface TicketModel extends Model<TicketDoc> {
@@ -41,6 +43,9 @@ const ticketSchema = new Schema(
     },
   },
 );
+
+ticketSchema.set("versionKey", "version");
+ticketSchema.plugin(updateIfCurrentPlugin);
 
 ticketSchema.statics.build = (attrs: TicketAttrs) => {
   return new Ticket(attrs);
