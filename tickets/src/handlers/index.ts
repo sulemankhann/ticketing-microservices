@@ -1,6 +1,10 @@
 import { Router, Request, Response } from "express";
 import Ticket from "../models/ticket";
-import { NotAuthorizedError, NotFoundError } from "@devorium/common";
+import {
+  BadRequestError,
+  NotAuthorizedError,
+  NotFoundError,
+} from "@devorium/common";
 import TicketCreatedPublisher from "../events/publisher/ticket-created-publisher";
 import TicketUpdatedPublisher from "../events/publisher/ticket-updated-publisher";
 import { natsWrapper } from "../nats-wrapper";
@@ -49,6 +53,10 @@ export const upateTickets = async (req: Request, res: Response) => {
 
   if (ticket.userId !== req.currentUser!.id) {
     throw new NotAuthorizedError();
+  }
+
+  if (ticket.orderId) {
+    throw new BadRequestError("Cannot edit a reserved ticket");
   }
 
   ticket.set({
