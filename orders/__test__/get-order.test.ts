@@ -16,6 +16,7 @@ it("returns 404 if order does not exist", async () => {
 
 it("returns 401 if order does not belong to current user", async () => {
   const ticket = Ticket.build({
+    id: new mongoose.Types.ObjectId().toHexString(),
     title: "Concert",
     price: 20,
   });
@@ -39,6 +40,7 @@ it("returns 401 if order does not belong to current user", async () => {
 
 it("fetches the order", async () => {
   const ticket = Ticket.build({
+    id: new mongoose.Types.ObjectId().toHexString(),
     title: "Concert",
     price: 20,
   });
