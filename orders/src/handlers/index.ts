@@ -11,7 +11,7 @@ import { natsWrapper } from "../nats-wrapper";
 import OrderCreatedPublisher from "../events/publisher/order-created-publisher";
 import OrderCancelledPublisher from "../events/publisher/order-cancelled-publisher";
 
-const EXPIRATION_WINDOW_SECONDS = 15 * 60;
+const EXPIRATION_WINDOW_SECONDS = 1 * 60;
 
 export const createOrders = async (req: Request, res: Response) => {
   const { ticketId } = req.body;
