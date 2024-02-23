@@ -6,8 +6,8 @@ export default function AppComponent({ Component, pageProps, currentUser }) {
   return (
     <>
       <Header currentUser={currentUser} />
-      <div className="mx-2">
-        <Component {...pageProps} />
+      <div className="container">
+        <Component currentUser={currentUser} {...pageProps} />
       </div>
     </>
   );
@@ -28,7 +28,7 @@ AppComponent.getInitialProps = async ({ ctx, Component }) => {
 
   // calling page getInitialProps
   if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(ctx);
+    pageProps = await Component.getInitialProps(ctx, client, data.currentUser);
   }
 
   return {
