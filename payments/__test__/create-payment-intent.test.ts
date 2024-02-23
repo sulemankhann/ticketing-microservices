@@ -1,15 +1,13 @@
 import request from "supertest";
-import app from "../src/app";
 import mongoose from "mongoose";
+import app from "../src/app";
 import Order from "../src/models/order";
 import { OrderStatus } from "@devorium/common";
-
 import { stripe } from "../src/stripe";
-import Payment from "../src/models/payment";
 
 it("returns a 404 when purchasing an order that does not exit", async () => {
   await request(app)
-    .post("/api/payments")
+    .post("/api/payments/create-payment-intent")
     .set("Cookie", global.createCookie())
     .send({
       token: "asdfasd",
@@ -30,7 +28,7 @@ it("returns a 401 when purchasing an order that does not belong to user", async 
   await order.save();
 
   await request(app)
-    .post("/api/payments")
+    .post("/api/payments/create-payment-intent")
     .set("Cookie", global.createCookie())
     .send({
       token: "asdfasd",
@@ -51,7 +49,7 @@ it("returns a 400 when purchasing a cancelled order", async () => {
   await order.save();
 
   await request(app)
-    .post("/api/payments")
+    .post("/api/payments/create-payment-intent")
     .set("Cookie", global.createCookie(order.userId))
     .send({
       token: "asdfasd",
@@ -60,7 +58,7 @@ it("returns a 400 when purchasing a cancelled order", async () => {
     .expect(400);
 });
 
-it("returns a 201 with valid inputs", async () => {
+it("returns stripe payment intent obj with valid inputs", async () => {
   const order = Order.build({
     id: new mongoose.Types.ObjectId().toHexString(),
     userId: new mongoose.Types.ObjectId().toHexString(),
@@ -72,30 +70,22 @@ it("returns a 201 with valid inputs", async () => {
   await order.save();
 
   const response = await request(app)
-    .post("/api/payments")
+    .post("/api/payments/create-payment-intent")
     .set("Cookie", global.createCookie(order.userId))
     .send({
-      token: "tok_visa",
+      token: "asdfasd",
       orderId: order.id,
     })
-    .expect(201);
+    .expect(200);
 
-  const stripeCharges = await stripe.charges.list({ limit: 50 });
+  expect(response.body.paymentIntent).not.toBeNull();
 
-  const stripeCharge = stripeCharges.data.find((charge) => {
-    return (
-      charge.metadata.orderId === order.id &&
-      charge.metadata.userId === order.userId
-    );
-  });
+  const paymentIntent = await stripe.paymentIntents.retrieve(
+    response.body.paymentIntent.id,
+  );
 
-  expect(stripeCharge).toBeDefined();
-  expect(stripeCharge?.currency).toEqual("usd");
-
-  const payment = await Payment.findOne({
-    stripeId: stripeCharge?.id,
-    orderId: order.id,
-  });
-
-  expect(payment).not.toBeNull();
-}, 10000);
+  expect(paymentIntent.id).toEqual(response.body.paymentIntent.id);
+  expect(paymentIntent.client_secret).toEqual(
+    response.body.paymentIntent.client_secret,
+  );
+});

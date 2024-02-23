@@ -11,7 +11,7 @@ import Payment from "../models/payment";
 import PaymentCreatedPublisher from "../events/publisher/payment-created-publisher";
 import { natsWrapper } from "../nats-wrapper";
 
-export const charge = async (req: Request, res: Response) => {
+export const createPaymentIntent = async (req: Request, res: Response) => {
   const { token, orderId } = req.body;
 
   const order = await Order.findById(orderId);
@@ -28,30 +28,50 @@ export const charge = async (req: Request, res: Response) => {
     throw new BadRequestError("Cannot pay for an cancelled order");
   }
 
-  const charge = await stripe.charges.create({
+  const paymentIntent = await stripe.paymentIntents.create({
     amount: order.price * 100,
     currency: "usd",
-    source: token,
+    automatic_payment_methods: {
+      enabled: false,
+    },
+    payment_method_types: ["card"],
     metadata: {
       userId: order.userId,
       orderId: order.id,
     },
   });
 
-  const payment = Payment.build({
-    orderId: order.id,
-    stripeId: charge.id,
+  res.send({
+    paymentIntent,
   });
+};
 
-  await payment.save();
+export const handlePaymentIntentStatus = async (
+  req: Request,
+  res: Response,
+) => {
+  const { paymentIntentId } = req.body;
 
-  new PaymentCreatedPublisher(natsWrapper.client).publish({
-    id: payment.id,
-    orderId: payment.orderId,
-    stripeId: payment.stipeId,
-  });
+  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-  res.status(201).send({
-    id: payment.id,
-  });
+  if (paymentIntent.status === "succeeded") {
+    const payment = Payment.build({
+      orderId: paymentIntent.metadata.orderId,
+      stripeId: paymentIntent.id,
+    });
+
+    await payment.save();
+
+    new PaymentCreatedPublisher(natsWrapper.client).publish({
+      id: payment.id,
+      orderId: payment.orderId,
+      stripeId: payment.stripeId,
+    });
+
+    return res.status(201).send({
+      id: payment.id,
+    });
+  }
+
+  res.send({ paymentIntent });
 };
