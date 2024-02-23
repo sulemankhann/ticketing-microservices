@@ -5,10 +5,13 @@ import jwt from "jsonwebtoken";
 let mongo: any;
 
 declare global {
-  var createCookie: () => [string];
+  var createCookie: (id?: string) => [string];
 }
 
 jest.mock("../src/nats-wrapper");
+
+process.env.STRIPE_KEY =
+  "sk_test_51OmVJKFbPHU90NRTvbSqJqwH6CGYOYXiziZUU6PSAmfBedhDpv9SJKMa8eJBpe9zkwOVeHY7rYiwNgKP8oIDaGwy00spQ2MHHs";
 
 beforeAll(async () => {
   process.env.JWT_KEY = "asdfasdf";
@@ -34,9 +37,9 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-global.createCookie = () => {
+global.createCookie = (id?: string) => {
   const payload = {
-    id: new mongoose.Types.ObjectId().toHexString(),
+    id: id || new mongoose.Types.ObjectId().toHexString(),
     email: "test@test.com",
   };
 

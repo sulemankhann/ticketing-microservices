@@ -3,6 +3,7 @@ import "express-async-errors";
 import { json } from "body-parser";
 import cookieSession from "cookie-session";
 import { NotFoundError, currentUser, errorHandler } from "@devorium/common";
+import routes from "./routes";
 
 const app = express();
 app.set("trust proxy", true);
@@ -16,6 +17,8 @@ app.use(
 );
 
 app.use(currentUser);
+
+app.use("/api/payments", routes);
 
 app.all("*", async (req, res, next) => {
   throw new NotFoundError();

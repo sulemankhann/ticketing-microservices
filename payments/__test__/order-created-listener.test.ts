@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { OrderCreatedEvent, OrderStatus } from "@devorium/common";
 import OrderCreatedListener from "../src/events/listener/order-created-listener";
 import { natsWrapper } from "../src/nats-wrapper";
-import Order from "../src/models/orders";
+import Order from "../src/models/order";
 
 const setup = async () => {
   // create an instance of listener
