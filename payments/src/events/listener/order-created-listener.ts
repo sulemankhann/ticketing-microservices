@@ -1,7 +1,7 @@
 import { Listener, OrderCreatedEvent, Subjects } from "@devorium/common";
 import { QUEUE_GROUP_NAME } from "../../utils/constants";
 import { Message } from "node-nats-streaming";
-import Order from "../../models/orders";
+import Order from "../../models/order";
 
 export default class OrderCreatedListener extends Listener<OrderCreatedEvent> {
   subject: Subjects.OrderCreated = Subjects.OrderCreated;

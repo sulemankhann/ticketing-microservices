@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { OrderCancelledEvent, OrderStatus } from "@devorium/common";
 import OrderCancelledListener from "../src/events/listener/order-cancelled-listener";
-import Order from "../src/models/orders";
+import Order from "../src/models/order";
 import { natsWrapper } from "../src/nats-wrapper";
 
 const setup = async () => {
