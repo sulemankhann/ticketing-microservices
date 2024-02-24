@@ -20,7 +20,7 @@ export default function Header({ currentUser }) {
   return (
     <nav className="navbar navbar-light bg-light mx-2">
       <Link className="navbar-brand" href="/">
-        Ticketing
+        TicketingApp
       </Link>
       <div className="d-flex justify-content-end">
         <ul className="nav d-flex align-items-center">{links}</ul>
