@@ -1,0 +1,27 @@
+name: deploy-k8s-manifests-to-digitalocean-cluster
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "infra/**"
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ticketing
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f infra/k8s && kubectl apply -f infra/k8s-prod
